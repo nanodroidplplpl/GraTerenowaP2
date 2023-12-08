@@ -1,0 +1,30 @@
+{% load static %}
+/* Stylowanie kontenera */
+#container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    /*background-image: url("{% static '/gra/game_index_background.jpg' %} ");*/
+    background-image: url("/static/gra/game_index_background.jpg");
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+
+ /* Stylowanie formularza dołączania do gry */
+#join-form {
+    margin-bottom: 20px;
+}
+
+/* Stylowanie formularza logowania hosta */
+#host-login-form {
+    margin-bottom: 20px;
+}
+
+/* Stylowanie przycisku utworzenia gry */
+#create-game-btn {
+    align-self: flex-end;
+}

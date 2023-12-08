@@ -1,0 +1,78 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Główne okno aplikacji</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'gra/css/game_style.css' %}">
+{#    <style>#}
+{#        /* Stylowanie kontenera */#}
+{#        #container {#}
+{#            display: flex;#}
+{#            flex-direction: column;#}
+{#            align-items: center;#}
+{#            justify-content: center;#}
+{#            height: 100vh;#}
+{#            background-image: url("{% static '/gra/game_index_background.jpg' %} ");#}
+{#            background-size: cover;#}
+{#            background-position: center;#}
+{#            background-repeat: no-repeat;#}
+{#        }#}
+{##}
+{##}
+{##}
+{#        /* Stylowanie formularza dołączania do gry */#}
+{#        #join-form {#}
+{#            margin-bottom: 20px;#}
+{#        }#}
+{##}
+{#        /* Stylowanie formularza logowania hosta */#}
+{#        #host-login-form {#}
+{#            margin-bottom: 20px;#}
+{#        }#}
+{##}
+{#        /* Stylowanie przycisku utworzenia gry */#}
+{#        #create-game-btn {#}
+{#            align-self: flex-end;#}
+{#        }#}
+{#    </style>#}
+</head>
+
+<body>
+{% include 'gra/navbar.html' %}
+<div id="container" class="container">
+    <form id="join-form" action="{% url 'choose_gorup' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="join-input">Dołącz do gry:</label>
+            <input type="text" class="form-control" id="join-input" name="join_code" required>
+        </div>
+        <div class="text-center"> <!-- Wrapping the button inside a div with the "text-center" class -->
+            <button type="submit" class="btn btn-primary">Dołącz</button>
+        </div>
+
+    </form>
+    {#    <img src="{% static '/gra/game_index_background.jpg' %} ">#}
+    <form id="host-login-form" action="{% url 'host_game_create' %}" method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="host-id-input">ID hosta:</label>
+            <input type="text" class="form-control" id="host-id-input" name="host_id" required>
+        </div>
+
+        <div class="form-group">
+            <label for="host-password-input">Hasło:</label>
+            <input type="password" class="form-control" id="host-password-input" name="host_password" required>
+        </div>
+
+        <div class="text-center"> <!-- Wrapping the button inside a div with the "text-center" class -->
+            <button type="submit" id="create-game-btn" class="btn btn-primary">Utwórz grę</button>
+        </div>
+    </form>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"></script>
+</body>
+</html>
+

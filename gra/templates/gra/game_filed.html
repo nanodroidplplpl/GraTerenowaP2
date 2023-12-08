@@ -1,0 +1,116 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pokaz Azymut</title>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.7.1/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'gra/css/game_filed.css' %}">
+</head>
+<body>
+{% include 'gra/navbar.html' %}
+<div class="container">
+    <h1 class="mt-5">Pokaz Azymut</h1>
+    {% if completed %}
+        <h1 class="game-completed">Ukończono grę</h1>
+    {% else %}
+        <div id="azymut" class="mt-4">
+            <h2>Azymut</h2>
+            <span class="h3">
+                {% if azymut %}
+                    {{ azymut }}
+                {% else %}
+                    Północ
+                {% endif %}
+            </span>
+            <h2 class="mt-4">Zostało:</h2>
+            <span class="h3" id="odwiedzone-zadania">0/{{ tasks|length }}</span>
+        </div>
+        <div class="mt-4">
+            <h2>Miejsca</h2>
+            <select id="miejsca" class="form-control">
+                {% for task in tasks %}
+                    <option value="{{ task.id_zadania }}">{{ task.nazwa_zadania }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div id="map" class="mt-4"></div>
+        <form id="hidden-form" style="display: none;">
+            {% csrf_token %}
+            <input type="hidden" name="id_zadania" id="id_zadania">
+            <input type="hidden" name="haslo" id="haslo">
+        </form>
+    {% endif %}
+</div>
+
+<script>
+    var map = L.map('map').setView([54.71, 18.40], 13);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+        maxZoom: 18,
+    }).addTo(map);
+
+    var tasks = [
+        {% for task in tasks %}
+            {
+                lat: {{ task.lat }},
+                lon: {{ task.lon }},
+                nazwa: "{{ task.nazwa_zadania }}",
+                opis: "{{ task.opis_zadania }}",
+                password: "{{ task.password }}",
+                id_zadania: "{{ task.id_zadania }}"
+            },
+        {% endfor %}
+    ];
+
+    tasks.forEach(function(task) {
+        var marker = L.marker([task.lat, task.lon]).addTo(map);
+
+        marker.on('click', function () {
+            var confirmation = confirm(task.nazwa + '\nCzy jesteś na miejscu?');
+            if (confirmation) {
+                var password = prompt('Proszę wprowadzić hasło:');
+                if (password !== null && password === task.password) {
+                    alert('Dziękujemy za przesłanie odpowiedzi');
+                    map.removeLayer(marker);
+
+                    $('#id_zadania').val(task.id_zadania);
+                    $('#haslo').val(password);
+
+                    $.ajax({
+                        type: 'POST',
+                        url: "{% url 'update_group_statistic' %}",
+                        data: $('#hidden-form').serialize(),
+                        headers: {'X-CSRFToken': '{{ csrf_token }}'},
+                        success: function (response) {
+                            // Obsługa odpowiedzi...
+                        },
+                        error: function (xhr, status, error) {
+                            // Obsługa błędów...
+                        }
+                    });
+
+                    var odwiedzoneZadania = document.getElementById("odwiedzone-zadania");
+                    var iloscOdwiedzonych = parseInt(odwiedzoneZadania.textContent.split("/")[0]) + 1;
+                    odwiedzoneZadania.textContent = iloscOdwiedzonych + "/" + tasks.length;
+
+                    if (iloscOdwiedzonych === tasks.length) {
+                        $('body').empty();
+                        var koniecGry = document.createElement('h1');
+                        koniecGry.textContent = 'Koniec gry';
+                        koniecGry.classList.add('game-over');
+                        document.body.appendChild(koniecGry);
+                    }
+                } else {
+                    alert('Nieprawidłowe hasło');
+                }
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
